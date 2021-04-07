@@ -94,6 +94,8 @@ webix.ready(function () {
         },
         {
           view:"icon", icon:"wxi-close", click: function() {
+            $$("add_form").clear();
+            $$("add_form").clearValidation();
             $$("add_window").hide();
           }
         }
@@ -105,22 +107,20 @@ webix.ready(function () {
         { 
           view:"form",
           id:"add_form",
-          width: 300,
+          width: 400,
           elementsConfig:{ labelPosition: "top", bottomPadding: 18 },
           elements:[
             { view:"text", name:"title", id:"input_title", label:"Наименование",
                 invalidMessage: "Введите наименование товара" },
             { view:"text", name:"quantity", id:"input_quantity", label:"Количество",
-                invalidMessage: "Введите количество товара (число) " },
+                invalidMessage: "Введите количество товара (число больше ноля) " },
             { view:"text", name:"cost", id:"input_cost", label:"Цена",
-                invalidMessage: "Введите стоимость товара (число)" }
+                invalidMessage: "Введите стоимость товара (число больше ноля)" }
           ],
           rules:{
-            "title":webix.rules.isNotEmpty,
-            "quantity":webix.rules.isNotEmpty,
-            "cost":webix.rules.isNotEmpty,
-            "quantity":webix.rules.isNumber,
-            "cost":webix.rules.isNumber,
+            title:webix.rules.isNotEmpty,
+            quantity:function(value) { return parseFloat(value) == value && value > 0; },
+            cost:function(value) { return parseFloat(value) == value && value >= 0; }
           },
         },
         // Add button
@@ -166,13 +166,15 @@ webix.ready(function () {
 
   function addToStock(item) {
     for (let i = 1; i <= $$("stock").count(); i++) {
+      console.log($$("stock").getItem(i).cost)
       if ($$("stock").getItem(i).title === item.title &&
           $$("stock").getItem(i).cost === Number(item.cost)) {
         $$("stock").getItem(i).quantity += Number(item.quantity);
         return;
       };
     }
-    $$("stock").add(item);
+    $$("stock").add({ id: $$("stock").count() + 1, title: item.title,
+        quantity: Number(item.quantity), cost: Number(item.cost) });
   }
 
   function refresh() {
