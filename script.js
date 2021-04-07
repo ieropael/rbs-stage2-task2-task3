@@ -167,7 +167,7 @@ webix.ready(function () {
   function addToStock(item) {
     for (let i = 1; i <= $$("stock").count(); i++) {
       console.log($$("stock").getItem(i).cost)
-      if ($$("stock").getItem(i).title === item.title &&
+      if ($$("stock").getItem(i).title.toLowerCase() === item.title.toLowerCase() &&
           $$("stock").getItem(i).cost === Number(item.cost)) {
         $$("stock").getItem(i).quantity += Number(item.quantity);
         return;
