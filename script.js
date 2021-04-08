@@ -1,6 +1,6 @@
 webix.ready(function () {
    
-  class product {
+  class Product {
     constructor(id, title, quantity, cost) {
       this.id = id;
       this.title = title;
@@ -181,7 +181,7 @@ webix.ready(function () {
     }
     // если подобного товара нет в таблице, добавляется новая строка с этим товаром
     else {
-      toStorage.add(new product(item.id, item.title, 1, item.cost));
+      toStorage.add(new Product(item.id, item.title, 1, item.cost));
     }
     // подсчет суммы товаров в корзине
     $$("summary").getItem("sum").value = 0;
@@ -192,18 +192,44 @@ webix.ready(function () {
 
   // Функция добавления нового товара из формы в таблицу "Склад"
   function addToStock(item) {
-    // если в таблице есть товар с такими же именем и ценой, как у добавляемого,
-    // количество товара в таблице увеличивается на количество, переданное из формы
-    for (let i = 1; i <= $$("stock").count(); i++) {
-      if ($$("stock").getItem(i).title.toLowerCase() === item.title.toLowerCase() &&
-          $$("stock").getItem(i).cost === Number(item.cost)) {
-        $$("stock").getItem(i).quantity += Number(item.quantity);
-        return;
+    // переменная для проверки наличия товара в таблице
+    let count = 0;
+    // если в таблице "Склад" есть товар с такими же именем и ценой, как у добавляемого,
+    // количество товара в таблице увеличивается на количество, переданное из формы...
+    $$("stock").data.each(function(product) {
+      if (product.title.toLowerCase() === item.title.toLowerCase() &&
+          product.cost === Number(item.cost)) {
+        product.quantity += Number(item.quantity);
+        count++;
       };
+    });
+    // ...и происходит выход из функции
+    if (count) {
+      return;
+    // если такого же товара нет в таблице "Склад", проверяется
+    // наличие этого товара в таблице "Корзина"
+    } else {
+      $$("basket").data.each(function(product) {
+        // если такой же товар есть в таблице "Корзина", в таблицу "Склад" добавляется новая
+        // строка с данными товара из формы и id такого же товара из таблицы "Корзина"...
+        if (product.title.toLowerCase() === item.title.toLowerCase() &&
+            product.cost === Number(item.cost)) {
+          $$("stock").add(new Product(product.id, item.title,
+            Number(item.quantity), Number(item.cost)));
+            count++;
+          }
+      });
+      // ... и происходит выход из функции
+      if (count) {
+        return;
+      }
+      // если подобный товар есть в таблице "Корзина", в таблицу "Склад" добавляются
+      // данные товара из формы и id такого же товара из таблицы "Корзина"
+      else {
+        $$("stock").add(new Product($$("stock").count() + 1, item.title,
+            Number(item.quantity), Number(item.cost)));
+      }
     }
-    // если подобного товара нет в таблице, добавляется новая строка с данными из формы
-    $$("stock").add(new product($$("stock").count() + 1, item.title,
-        Number(item.quantity), Number(item.cost)));
   }
 
   // Функция обновления данных в таблицах и строки с суммой
