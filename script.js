@@ -1,4 +1,14 @@
 webix.ready(function () {
+   
+  class product {
+    constructor(id, title, quantity, cost) {
+      this.id = id;
+      this.title = title;
+      this.quantity = quantity;
+      this.cost = cost;
+    }
+  }
+
   var stock = [
     { id: 1, title: 'Ручка', quantity: 5, cost: 10 },
     { id: 2, title: 'Тетрадь', quantity: 5, cost: 30 },
@@ -128,7 +138,7 @@ webix.ready(function () {
   $$("basket").attachEvent("onItemClick", function () {
     transfer($$("basket"), $$("stock"), $$("basket").getSelectedId());
   });
-  
+
   // Обработка нажатия на кнопку "Новый товар"
   $$("new_product_button").attachEvent("onItemClick", function() {
     $$("add_window").show();
@@ -171,7 +181,7 @@ webix.ready(function () {
     }
     // если подобного товара нет в таблице, добавляется новая строка с этим товаром
     else {
-      toStorage.add({ id: item.id, title: item.title, quantity: 1, cost: item.cost });
+      toStorage.add(new product(item.id, item.title, 1, item.cost));
     }
     // подсчет суммы товаров в корзине
     $$("summary").getItem("sum").value = 0;
@@ -192,8 +202,8 @@ webix.ready(function () {
       };
     }
     // если подобного товара нет в таблице, добавляется новая строка с данными из формы
-    $$("stock").add({ id: $$("stock").count() + 1, title: item.title,
-        quantity: Number(item.quantity), cost: Number(item.cost) });
+    $$("stock").add(new product($$("stock").count() + 1, item.title,
+        Number(item.quantity), Number(item.cost)));
   }
 
   // Функция обновления данных в таблицах и строки с суммой
